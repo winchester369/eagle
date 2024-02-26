@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MonitorRoom</title>
+    <style>
+        /* Add some basic styling if needed */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th, td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            background-color: #981adfbd;;
+            text-align: center;
+        }
+        td {
+            /*background-color: #f2f2f2;*/
+            text-align: center;
+        }
+
+    </style>
+</head>
+<body>
+
+
+<table id="myTable">
+    <thead>
+    <tr>
+        <th>
+            Server
+        </th>
+        <th>
+            CPU
+        </th>
+        <th>
+            Ram
+        </th>
+        <th>
+            Network
+        </th>
+        <th>
+            dl
+        </th>
+        <th>
+            online users
+        </th>
+        <th>
+            traffic
+        </th>
+        <th>
+            active users
+        </th>
+        <!--        <th>
+            version
+            </th>-->
+        <th>
+            update_time
+        </th>
+    </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+
+<script>
+    // Data to be displayed
+
+    KB = 1024 * 1000;
+    MB = KB * 1000;
+    GB = MB * 1000;
+
+    // Function to set background color based on the percentage
+    function getBackgroundColor(percentage) {
+        // Ensure percentage is within the range [0, 100]
+        percentage = Math.min(100, Math.max(0, percentage));
+
+        // Calculate RGB values based on the percentage
+        var red = Math.floor(255 * (percentage / 100));
+        var green = Math.floor(255 * ((100 - percentage) / 100));
+
+        // Set the background color
+        var color = 'rgb(' + red + ',' + green + ',0)';
+        return color
+    }
+
+    // Function to calculate percentage usage
+    function calculatePercentage(total, usage) {
+        if (total === 0) {
+            return 0; // To avoid division by zero
+        }
+
+        return (usage / total) * 100;
+    }
+
+    // Function to create and append table rows for each JSON object
+    function addTableRowsFromJson(system_infos) {
+        var tableBody = document.getElementById("myTable").getElementsByTagName('tbody')[0];
+        tableBody.textContent = "";
+
+        // Iterate through the JSON array
+        system_infos.forEach(function (system_info) {
+            let data = system_info['json_data']
+            // Create a new table row
+            var newRow = document.createElement("tr");
+
+            var cell = document.createElement("td");
+            cell.textContent = system_info['code'] + "( "+ system_info['username'] + ")";
+            newRow.appendChild(cell);
+
+            var cell = document.createElement("td");
+            cell.textContent = data['cpu_usage'] + "%" + " (" + data['cpu_cores'] + "c) ";
+            cell.style.backgroundColor = getBackgroundColor(data['cpu_usage']);
+            newRow.appendChild(cell);
+
+            var cell = document.createElement("td");
+            cell.textContent = (data['mem_used'] / MB).toFixed(2) + "gb / " + (data['mem_total'] / MB).toFixed(2) + "gb";
+            cell.style.backgroundColor = getBackgroundColor(calculatePercentage(data['mem_total'], data['mem_used']));
+            newRow.appendChild(cell);
+
+
+            var cell = document.createElement("td");
+            total_speed = data['incoming_bandwidth_speed'] + data['outgoing_bandwidth_speed']
+            // total_speed_avg = total_speed / 2
+            total_speed_avg = total_speed
+            cell.textContent = (total_speed / KB).toFixed(2) + "mb";
+            cell.style.backgroundColor = getBackgroundColor(calculatePercentage(50 * KB, total_speed));
+            newRow.appendChild(cell);
+
+            var cell = document.createElement("td");
+            total_speed =  data['outgoing_bandwidth_speed']
+            cell.textContent = (total_speed / KB).toFixed(2) + "mb";
+            cell.style.backgroundColor = getBackgroundColor(calculatePercentage(50 * KB, total_speed));
+            newRow.appendChild(cell);
+
+
+            var cell = document.createElement("td");
+            cell.textContent = data['online_users_f_1_m'] + "u(1m) " + data['online_users_f_3_h'] + "u(3h) " + data['online_users_f_24_h'] + "u(24h)";
+            cell.style.backgroundColor = getBackgroundColor(calculatePercentage(50,data['online_users_f_1_m']));
+            newRow.appendChild(cell);
+
+
+            var cell = document.createElement("td");
+            cell.textContent = ((data['incoming_bandwidth'] + data['outgoing_bandwidth']) / GB).toFixed(2) + "tb / " + (data['total_traffic'] / GB).toFixed(2) + "tb";
+            newRow.appendChild(cell);
+
+
+            var cell = document.createElement("td");
+            cell.textContent = data['users_active'] + "u / " + data['total_user'] + "u";
+            newRow.appendChild(cell);
+
+            //
+            // var cell = document.createElement("td");
+            // cell.textContent = data['version'];
+            // newRow.appendChild(cell);
+
+            var cell = document.createElement("td");
+            cell.textContent = system_info['created_at'];
+            newRow.appendChild(cell);
+
+            tableBody.appendChild(newRow);
+
+        });
+    }
+
+    // Call the function with the JSON data
+    // addTableRowsFromJson(system_infos);
+
+    // You can use setInterval to periodically update the table if the data changes
+    // setInterval(updateTable, 5000); // Update every 5 seconds, for example
+
+    // Replace 'your-api-endpoint' with the actual URL of the API you want to fetch data from
+    const apiUrl = '/api/system_infos';
+
+    function updateTable() {
+        fetch(apiUrl)
+            .then(response => {
+                // Check if the request was successful (status code 200-299)
+                if (!response.ok) {
+                    throw new Error(`Network response was not ok: ${response.statusText}`);
+                }
+                // Parse the response as JSON
+                return response.json();
+            })
+            .then(data => {
+                // Handle the JSON data
+                console.log(data);
+                addTableRowsFromJson(data);
+
+            })
+            .catch(error => {
+                // Handle errors during the fetch or JSON parsing
+                console.error('Error:', error);
+            });
+    }
+
+    // Using the fetch API to make a GET request
+    setInterval(updateTable, 300); // Update every 5 seconds, for example
+
+
+</script>
+
+</body>
+</html>
