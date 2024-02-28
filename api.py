@@ -41,6 +41,8 @@ def get_system_info(base_url, access_token):
         # print(response.status_code)
         return get_system_info(base_url, access_token)
     # response = requests.get('%s/system' % base_url, headers=head)
+    if response.status_code == 401:
+        return None
     if response.status_code != 200:
         print("got:", response.status_code)
         return get_system_info(base_url, access_token)
