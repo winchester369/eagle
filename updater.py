@@ -25,6 +25,8 @@ def get_servers_access_token():
                 # print(f"Server {server['id']}: {server['access_token']} fetched")
         result.append({
             'id': server['id'],
+            'username': server['username'],
+            'password': server['password'],
             'access_token': access_token,
             'base_url': server['base_url']
         })
