@@ -65,13 +65,23 @@ def get_last_system_info_by_server_id(server_id):
 
 
 def get_last_system_info_chart_data():
-    ten_days_ago = datetime.now() - timedelta(days=10)
+    ten_days_ago = datetime.now() - timedelta(days=2)
 
     query = f"SELECT server_id,created_at, json_data FROM system_info WHERE created_at >= '{ten_days_ago.strftime('%Y-%m-%d %H:%M:%S')}'"
     # parameters = (server['id'],)
 
     sql_query = """
         SELECT server_id, created_at, json_data
+        FROM (
+            SELECT server_id, created_at, json_data,
+                   ROW_NUMBER() OVER (PARTITION BY strftime('%Y-%m-%d %H', created_at) ORDER BY created_at DESC) as row_num
+            FROM system_info""" + f" WHERE created_at >= '{ten_days_ago.strftime('%Y-%m-%d %H:%M:%S')}'" + """
+        ) AS ranked
+        WHERE row_num <= 24
+        ORDER BY created_at ASC;
+    """
+    sql = """
+        EXPLAIN SELECT server_id, created_at, json_data
         FROM (
             SELECT server_id, created_at, json_data,
                    ROW_NUMBER() OVER (PARTITION BY strftime('%Y-%m-%d', created_at) ORDER BY created_at DESC) as row_num
@@ -105,8 +115,8 @@ def get_last_system_info_chart_data():
                 # 'code': server['code'],
                 'created_at': created_at,
                 'online_user_count': online_users,
-                'total_speed': outgoing_bandwidth_speed+incoming_bandwidth_speed,
-                'total_used_traffic': incoming_bandwidth+outgoing_bandwidth,
+                'total_speed': outgoing_bandwidth_speed + incoming_bandwidth_speed,
+                'total_used_traffic': incoming_bandwidth + outgoing_bandwidth,
             }
 
             if server_id not in server_infos:
