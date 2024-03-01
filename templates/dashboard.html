@@ -83,7 +83,7 @@
         .then(response => response.json())
         .then(data => {
            showChart(data['online_users']['labels'],data['online_users']['datasets'] , "Online Users Of 4 Days",'myChart')
-           showChart(data['speed']['labels'],data['speed']['datasets'] , "Speed Of 4 Days",'myChart2')
+           return showChart(data['speed']['labels'],data['speed']['datasets'] , "Speed Of 4 Days",'myChart2')
            return showChart(data['traffic']['labels'],data['traffic']['datasets'] , "Traffic Of 4 Days",'myChart3')
 
             // Process data to extract x and y values
@@ -251,8 +251,6 @@
 
         // Iterate through the JSON array
         system_infos.forEach(function (system_info,index) {
-            console.log(index)
-            console.log(system_info)
             let data = system_info['json_data']
             // Create a new table row
             var newRow = document.createElement("tr");

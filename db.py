@@ -66,7 +66,7 @@ def get_last_system_info_by_server_id(server_id):
 
 
 def get_last_system_info_chart_data():
-    ten_days_ago = datetime.now() - timedelta(days=3)
+    # ten_days_ago = datetime.now() - timedelta(days=3)
 
     sql_query = """
         SELECT system_info.server_id, system_info.created_at, system_info.json_data, server.code
@@ -120,7 +120,7 @@ def get_last_system_info_chart_data():
             server_infos[server_id]['labels'].append(created_at)
             server_infos[server_id]['online_users'].append(online_users)
             server_infos[server_id]['speed'].append(total_speed)
-            server_infos[server_id]['traffic'].append(total_traffic)
+            # server_infos[server_id]['traffic'].append(total_traffic)
             # /
             # labels.append(created_at)
             # chart_data_list.append(chart_data)
@@ -140,10 +140,10 @@ def get_last_system_info_chart_data():
             'labels': [],  # common labels for x-axis (created_at)
             'datasets': []
         },
-        "traffic": {
-            'labels': [],  # common labels for x-axis (created_at)
-            'datasets': []
-        },
+        # "traffic": {
+        #     'labels': [],  # common labels for x-axis (created_at)
+        #     'datasets': []
+        # },
     }
 
     for index, data in server_infos.items():
@@ -167,15 +167,15 @@ def get_last_system_info_chart_data():
         }
         charts["speed"]['datasets'].append(dataset)
         #
-        charts["traffic"]['labels'] = data['labels']  # Assume all servers have the same timestamps
-        dataset = {
-            'label': f"{data['code']}",
-            'data': data['traffic'],
-            'fill': False,
-            'borderColor': colors[index % len(colors)],  # Use a color from the list, cycling if necessary
-            'lineTension': 0.1
-        }
-        charts["traffic"]['datasets'].append(dataset)
+        # charts["traffic"]['labels'] = data['labels']  # Assume all servers have the same timestamps
+        # dataset = {
+        #     'label': f"{data['code']}",
+        #     'data': data['traffic'],
+        #     'fill': False,
+        #     'borderColor': colors[index % len(colors)],  # Use a color from the list, cycling if necessary
+        #     'lineTension': 0.1
+        # }
+        # charts["traffic"]['datasets'].append(dataset)
 
     chart_data_json = json.dumps(charts)
     # print(chart_data_json)
