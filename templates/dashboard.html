@@ -69,7 +69,7 @@
                         display: true,
                         title: {
                             display: true,
-                            text: 'Value'
+                            // text: 'Users'
                         },
                     }
                 }
@@ -82,7 +82,9 @@
     fetch('/api/system_charts')
         .then(response => response.json())
         .then(data => {
-           return showChart(data['labels'],data['datasets'] , "Online Users by time",'myChart')
+           showChart(data['online_users']['labels'],data['online_users']['datasets'] , "Online Users Of 4 Days",'myChart')
+           showChart(data['speed']['labels'],data['speed']['datasets'] , "Speed Of 4 Days",'myChart2')
+           return showChart(data['traffic']['labels'],data['traffic']['datasets'] , "Traffic Of 4 Days",'myChart3')
 
             // Process data to extract x and y values
             const serverIds = Object.keys(data);
@@ -108,6 +110,7 @@
                         tension: 0.4
                     }
             });
+
            showChart(labels,datasets , "Online Users by time",'myChart')
 
 
@@ -229,20 +232,35 @@
 
         return (usage / total) * 100;
     }
-
+    // rgba_colors = [
+    // 'rgba(255, 87, 51, 0.3)', 'rgba(51, 255, 87, 0.3)', 'rgba(87, 51, 255, 0.3)',
+    // 'rgba(255, 51, 102, 0.3)', 'rgba(51, 255, 255, 0.3)', 'rgba(255, 255, 51, 0.3)',
+    // 'rgba(51, 102, 255, 0.3)', 'rgba(255, 51, 255, 0.3)', 'rgba(255, 133, 51, 0.3)',
+    // 'rgba(51, 255, 170, 0.3)', 'rgba(170, 51, 255, 0.3)', 'rgba(255, 51, 153, 0.3)',
+    // 'rgba(51, 255, 51, 0.3)', 'rgba(255, 204, 51, 0.3)', 'rgba(51, 102, 204, 0.3)',
+    // 'rgba(204, 51, 102, 0.3)', 'rgba(51, 204, 255, 0.3)', 'rgba(255, 102, 178, 0.3)',
+    // 'rgba(102, 255, 102, 0.3)', 'rgba(178, 102, 255, 0.3)', 'rgba(255, 102, 102, 0.3)',
+    // 'rgba(102, 255, 255, 0.3)', 'rgba(255, 255, 102, 0.3)', 'rgba(102, 102, 255, 0.3)',
+    // 'rgba(255, 153, 204, 0.3)', 'rgba(153, 255, 153, 0.3)', 'rgba(204, 153, 255, 0.3)',
+    // 'rgba(255, 153, 153, 0.3)', 'rgba(153, 255, 255, 0.3)', 'rgba(255, 255, 153, 0.3)'
+    // ]
     // Function to create and append table rows for each JSON object
     function addTableRowsFromJson(system_infos) {
         var tableBody = document.getElementById("myTable").getElementsByTagName('tbody')[0];
         tableBody.textContent = "";
 
         // Iterate through the JSON array
-        system_infos.forEach(function (system_info) {
+        system_infos.forEach(function (system_info,index) {
+            console.log(index)
+            console.log(system_info)
             let data = system_info['json_data']
             // Create a new table row
             var newRow = document.createElement("tr");
+            // newRow.style.color = colors[(index+1) % colors.length];
 
             var cell = document.createElement("td");
             cell.textContent = system_info['code'];
+            // cell.style.backgroundColor = rgba_colors[(index+1) % rgba_colors.length];
             newRow.appendChild(cell);
 
             var cell = document.createElement("td");
@@ -330,9 +348,9 @@
                 console.error('Error:', error);
             });
     }
-
+    updateTable()
     // Using the fetch API to make a GET request
-    setInterval(updateTable, 800); // Update every 5 seconds, for example
+    setInterval(updateTable, 1000); // Update every 5 seconds, for example
 
 
 </script>
