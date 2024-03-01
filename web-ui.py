@@ -1,6 +1,6 @@
 import json
 
-from db import ger_servers_from_db, get_last_system_info_by_server_id,get_last_system_info_chart_data
+from db import ger_servers_from_db, get_last_system_info_by_server_id, get_last_system_info_chart_data
 
 from flask import Flask, render_template, jsonify
 
@@ -34,18 +34,21 @@ def api_system_infos():
 
 @app.route('/api/system_charts')
 def api_system_charts():
-    try:
-        servers = ger_servers_from_db()
-        all_servers_chart_data = {}
+    # try:
+    return jsonify(get_last_system_info_chart_data())
 
-        for server in servers:
-            chart_data = get_last_system_info_chart_data(server=server)
-            # chart_data['code'] = server['code']
-            all_servers_chart_data[server['id']] = chart_data
+    servers = ger_servers_from_db()
+    all_servers_chart_data = []
 
-        return jsonify(all_servers_chart_data)
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+    for server in servers:
+        labels, chart_data = get_last_system_info_chart_data(server=server)
+        # chart_data['code'] = server['code']
+        # all_servers_chart_data[server['id']] = chart_data
+        all_servers_chart_data.append( {"labels": labels, "data": chart_data})
+    # print(all_servers_chart_data[5])
+    return jsonify(all_servers_chart_data)
+    # except Exception as e:
+    #     return jsonify({'error': str(e)}), 500
 
 
 @app.route('/')
