@@ -72,7 +72,8 @@ def get_last_system_info_chart_data():
         SELECT system_info.server_id, system_info.created_at, system_info.json_data, server.code
         FROM system_info
         JOIN server ON system_info.server_id = server.id
-        WHERE (
+        WHERE system_info.created_at >= (SELECT MAX(created_at) FROM system_info) - 2*24*3600  -- Last 2 days
+        AND (
         strftime('%M', system_info.created_at) = '00'
         OR strftime('%M', system_info.created_at) = '10'
         OR strftime('%M', system_info.created_at) = '20'
@@ -80,7 +81,6 @@ def get_last_system_info_chart_data():
         OR strftime('%M', system_info.created_at) = '40'
         OR strftime('%M', system_info.created_at) = '50'
         )
-        AND system_info.created_at >= (SELECT MAX(created_at) FROM system_info) - 2*24*3600  -- Last 4 days
         ORDER BY system_info.created_at ASC ;
     """
     cursor = execute_query(sql_query)
