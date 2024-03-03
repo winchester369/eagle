@@ -1,6 +1,6 @@
 import json
 
-from db import ger_servers_from_db, get_last_system_info_by_server_id, get_last_system_info_chart_data
+from db import ger_servers_from_db, get_last_system_info_by_server_id, get_last_online_users_chart_data
 
 from flask import Flask, render_template, jsonify
 
@@ -32,10 +32,10 @@ def api_system_infos():
         return jsonify({'error': str(e)}), 500
 
 
-@app.route('/api/system_charts')
-def api_system_charts():
+@app.route('/api/online_users')
+def api_online_users():
     # try:
-    return jsonify(get_last_system_info_chart_data())
+    return jsonify(get_last_online_users_chart_data())
 
     servers = ger_servers_from_db()
     all_servers_chart_data = []
@@ -54,6 +54,10 @@ def api_system_charts():
 @app.route('/')
 def index():
     return render_system_info_as_html_page()
+
+@app.route('/online_users')
+def online_users_page():
+    return render_template('online_users.html')
 
 
 if __name__ == "__main__":

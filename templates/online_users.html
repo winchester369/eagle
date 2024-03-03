@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Online Users</title>
+    <style>
+        /* Add some basic styling if needed */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th, td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            background-color: #981adfbd;;
+            text-align: center;
+        }
+
+        td {
+            /*background-color: #f2f2f2;*/
+            text-align: center;
+        }
+
+    </style>
+</head>
+<body>
+<script>
+
+    function showChart(labels, datasets, title,divID) {
+        const ctx = document.getElementById(divID);
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: datasets
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: title
+                    },
+                },
+                interaction: {
+                    intersect: false,
+                },
+                scales: {
+                    x: {
+                        display: true,
+                        title: {
+                            display: true
+                        }
+                    },
+                    y: {
+                        display: true,
+                        title: {
+                            display: true,
+                            // text: 'Users'
+                        },
+                    }
+                }
+            }
+        });
+    }
+    let xValues;  // Declare xValues here
+
+    // Fetch data from your Flask API
+    fetch('/api/online_users')
+        .then(response => response.json())
+        .then(data => {
+           return showChart(data['online_users']['labels'],data['online_users']['datasets'] , "Online Users Of 4 Days",'myChart')
+           return showChart(data['speed']['labels'],data['speed']['datasets'] , "Speed Of 4 Days",'myChart2')
+           return showChart(data['traffic']['labels'],data['traffic']['datasets'] , "Traffic Of 4 Days",'myChart3')
+
+            // Process data to extract x and y values
+            const serverIds = Object.keys(data);
+            var datasets = serverIds.map(key => {
+                const labels = data[key]['labels'];
+                const chartData = data[key]['data'];
+                xValues = chartData.map(entry => entry.created_at);
+                const yValues = chartData.map(entry => entry.online_user_count);
+                // randomColor = Math.floor(Math.random()*16777215).toString(16);
+                // randomColor2 = Math.floor(Math.random()*16777215).toString(16);
+                return{
+                        label: chartData[0]['code'],
+                        data: yValues,
+                        // backgroundColor: randomColor, // Adjust as needed
+
+                        backgroundColor: getBackgroundColor((0.0 + (key/10))*50), // Adjust as needed
+                        // backgroundColor: 'rgba(75, 192, 192, 0.2)', // Adjust as needed
+                        borderColor: getBackgroundColor((0.0 + (key/10))*50), // Adjust as needed
+                        // borderColor: 'rgba(75, 192, 192, 1)', // Adjust as needed// borderColor: randomColor2, // Adjust as needed
+                        borderWidth: 3,
+                        fill: false,
+                        cubicInterpolationMode: 'monotone',
+                        tension: 0.4
+                    }
+            });
+
+           showChart(labels,datasets , "Online Users by time",'myChart')
+
+
+            // datasets = serverIds.map(serverId => {
+            //     const chartData = data[serverId];
+            //     xValues = chartData.map(entry => entry.created_at);
+            //     const yValues = chartData.map(entry => entry.total_speed);
+            //     // randomColor = Math.floor(Math.random()*16777215).toString(16);
+            //     // randomColor2 = Math.floor(Math.random()*16777215).toString(16);
+            //     return {
+            //         label: chartData[0]['code'],
+            //         data: yValues,
+            //         // backgroundColor: randomColor, // Adjust as needed
+            //
+            //         backgroundColor: getBackgroundColor((0.0 + (serverId/10))*50), // Adjust as needed
+            //         // backgroundColor: 'rgba(75, 192, 192, 0.2)', // Adjust as needed
+            //         borderColor: getBackgroundColor((0.0 + (serverId/10))*50), // Adjust as needed
+            //         // borderColor: 'rgba(75, 192, 192, 1)', // Adjust as needed// borderColor: randomColor2, // Adjust as needed
+            //         borderWidth: 3,
+            //         fill: false,
+            //         cubicInterpolationMode: 'monotone',
+            //         tension: 0.4
+            //     };
+            // });
+            // showChart(serverIds, datasets, "NetWork Speed by time",'myChart2')
+            //
+            // datasets = serverIds.map(serverId => {
+            //     const chartData = data[serverId];
+            //     xValues = chartData.map(entry => entry.created_at);
+            //     const yValues = chartData.map(entry => entry.total_used_traffic);
+            //     // randomColor = Math.floor(Math.random()*16777215).toString(16);
+            //     // randomColor2 = Math.floor(Math.random()*16777215).toString(16);
+            //     return {
+            //         label: chartData[0]['code'],
+            //         data: yValues,
+            //         backgroundColor: getBackgroundColor((0.0 + (serverId/10))*50), // Adjust as needed
+            //         // backgroundColor: 'rgba(75, 192, 192, 0.2)', // Adjust as needed
+            //         borderColor: getBackgroundColor((0.0 + (serverId/10))*50), // Adjust as needed
+            //         // borderColor: 'rgba(75, 192, 192, 1)', // Adjust as needed
+            //         // borderColor: randomColor2, // Adjust as needed
+            //         borderWidth: 3,
+            //         fill: false,
+            //         cubicInterpolationMode: 'monotone',
+            //         tension: 0.4
+            //     };
+            // });
+            // showChart(serverIds, datasets, "Traffic by time",'myChart3')
+
+            // Create chart using Chart.js
+        })
+        .catch(error => console.error('Error fetching data:', error));
+</script>
+
+<canvas id="myChart"></canvas>
+</body>
+</html>
