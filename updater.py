@@ -35,7 +35,7 @@ def get_servers_access_token():
 
 
 def update_system_info(ser):
-    sleep(1)
+    sleep(3)
     if env == 'dev':
         print(f"Get info for Server {ser['id']}")
 
