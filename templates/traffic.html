@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Traffic</title>
+    <style>
+        /* Add some basic styling if needed */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th, td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            background-color: #981adfbd;;
+            text-align: center;
+        }
+
+        td {
+            /*background-color: #f2f2f2;*/
+            text-align: center;
+        }
+
+    </style>
+</head>
+<body>
+<script>
+
+    function showChart(labels, datasets, title,divID) {
+        const ctx = document.getElementById(divID);
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: datasets
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: title
+                    },
+                },
+                interaction: {
+                    intersect: false,
+                },
+                scales: {
+                    x: {
+                        display: true,
+                        title: {
+                            display: true
+                        }
+                    },
+                    y: {
+                        display: true,
+                        title: {
+                            display: true,
+                            // text: 'Users'
+                        },
+                    }
+                }
+            }
+        });
+    }
+    let xValues;  // Declare xValues here
+
+    // Fetch data from your Flask API
+    fetch('/api/traffic')
+        .then(response => response.json())
+        .then(data => {
+           return showChart(data['traffic']['labels'],data['traffic']['datasets'] , "Traffic Of 4 Days",'myChart')
+        })
+        .catch(error => console.error('Error fetching data:', error));
+</script>
+
+<h1>
+
+    <a href="/">Back To Home</a>
+</h1>
+<canvas id="myChart"></canvas>
+</body>
+</html>
